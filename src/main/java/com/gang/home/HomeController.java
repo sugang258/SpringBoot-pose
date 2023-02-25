@@ -10,5 +10,10 @@ public class HomeController {
 	public String home() {
 		return "/posenet/posenet";
 	}
+	
+	@GetMapping("/mediaPipe")
+	public String media() {
+		return "/posenet/mediaPipe";
+	}
 
 }
