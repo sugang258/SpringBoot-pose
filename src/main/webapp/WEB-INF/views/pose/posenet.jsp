@@ -32,7 +32,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-
+	<h1> POSE NET </h1>
+	<a href="../"> 뒤로가기 </a>
 	<video id="video" width="640" height="480" autoplay muted playsinline></video>
 	<canvas id="canvas"></canvas>
 
