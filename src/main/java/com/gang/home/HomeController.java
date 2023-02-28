@@ -15,5 +15,10 @@ public class HomeController {
 	public String media() {
 		return "/posenet/mediaPipe";
 	}
+	
+	@GetMapping("/movenet")
+	public String blazepose() {
+		return "/posenet/movenet";
+	}
 
 }
