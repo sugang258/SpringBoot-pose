@@ -16,6 +16,13 @@
 	<div>
 		<a href="/mediaPipe"> MEDIA PIPE</a>
 	</div>
+	
+	<div>
+		<a href="/kakaoPose"> KAKAO POSE</a>
+	</div>
+	
+	
+	<hr>
 	<div>
 		<a href="/allPose"> ALL POSE</a>
 	</div>
