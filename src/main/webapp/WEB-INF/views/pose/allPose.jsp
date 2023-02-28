@@ -6,12 +6,41 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.2/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/pose.js" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet@2.2.2/dist/posenet.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@3.11.0/dist/tf-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@3.11.0/dist/tf-converter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@3.11.0/dist/tf-backend-webgl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@0.0.6/dist/pose-detection.min.js"></script>
+    
+    
+    <style>
+    	#canvas {
+    		position : absolute;
+    		transform : translate(-50%, -50%);
+    		top : 50%;
+    		left : 50%;
+    	}
+    	
+    	#video {
+    		position : absolute;
+    		transform:translate(-50%, -50%);
+    		top : 50%;
+    		left : 50%;
+    	}
+    </style>
+    
+    
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <body>
+
+<!-- MEDIA PIPE -->
     <!-- CONTENTS --> 
   <div class="container" style="margin-top: 20px;">
 
@@ -48,7 +77,16 @@
     <div style="visibility: hidden;" class="control5">
   </div>
 
+<!-- POSE NET -->
+
+	<div style=" margin-top: 300px; height:500px;">
+	<video id="video" width="640" height="480" autoplay muted playsinline></video>
+	<canvas id="canvas"></canvas>
+	
+	</div>
+	
+
   <script type="text/javascript" src="./js/mediaPipe.js"></script>
-    
+    <script src="/js/posenet.js"></script>
 </body>
 </html>
