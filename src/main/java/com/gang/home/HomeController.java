@@ -1,6 +1,7 @@
 package com.gang.home;
 
 
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class HomeController {
@@ -35,11 +37,12 @@ public class HomeController {
 	}
 	
 	@GetMapping("/kakaoPose")
-	public String kakaoPose() {
-//		String REST_API_KEY = "59a842b4b24abc7f4692e19f097b3766";
+	public ModelAndView kakaoPose() {
+		ModelAndView mv = new ModelAndView();
+		String REST_API_KEY = "59a842b4b24abc7f4692e19f097b3766";
 //		
-//		RestTemplate restTemplate = new RestTemplate();
-//		HttpHeaders headers = new HttpHeaders();
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
 //		
 //		
 //		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -55,18 +58,19 @@ public class HomeController {
 //
 //		System.out.println(response.getBody());
 		
-//		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-//		headers.set("Authorization", "KakaoAK " + REST_API_KEY);
-//
-//		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-//		map.add("file", new FileSystemResource("src/main/resources/static/sample/test3.jpg"));
-//
-//		HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
-//
-//		String url = "https://cv-api.kakaobrain.com/pose";
-//		ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-//
-//		System.out.println(response.getBody());
-		return "/pose/kakaoPose";
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		headers.set("Authorization", "KakaoAK " + REST_API_KEY);
+
+		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+		map.add("file", new FileSystemResource("src/main/resources/static/sample/cave.jpg"));
+
+		HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
+
+		String url = "https://cv-api.kakaobrain.com/pose";
+		ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+		mv.setViewName("/pose/kakaoPose");
+		mv.addObject("pose", response.getBody());
+		return mv;
 	}
 }
