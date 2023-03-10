@@ -16,7 +16,7 @@
 <body>
 
 <h1>YOLO</h1>
-<img id="img" src="/sample/cave.jpg"/>
+<img id="img" src="/sample/test3.jpg"/>
 <canvas id="output"></canvas>
 
 <script>
@@ -44,8 +44,8 @@ class Image {
 	    // Because the image from camera is mirrored, need to flip horizontally.
 	    //camera.ctx.translate(camera.video.videoWidth, 0);
 	    //camera.ctx.scale(-1, 1);
-	image.canvas.width = 360;
-	image.canvas.height = 480;
+	image.canvas.width = image.img.width;
+	image.canvas.height = image.img.height;
 	    return image;
   }
 
