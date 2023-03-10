@@ -23,6 +23,8 @@
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 	<script type="text/javascript">
 	
+	
+	
 	const canvas = document.getElementById('output_canvas');
 	const ctx = canvas.getContext('2d');
 	const img = document.getElementById('img');
