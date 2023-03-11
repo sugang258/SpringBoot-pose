@@ -46,12 +46,13 @@ class Image {
     const scores_data = scores.dataSync();
     const classes_data = classes.dataSync();
     const valid_detections_data = valid_detections.dataSync()[0];
-    
     const bBox = [];
     tf.dispose(res);
     var i;
     for (i = 0; i < valid_detections_data; ++i) {
 	    let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
+	    startPose([y1, x1, y2, x2] ,[y1*this.canvas.height, x1*this.canvas.width, y2*this.canvas.height, x2*this.canvas.width]);
+	    
 	    bBox.push([x1, y1, x2, y2]);
 	    x1 *= this.canvas.width;
 	    x2 *= this.canvas.width;
@@ -72,7 +73,8 @@ class Image {
 	    const textWidth = this.ctx.measureText(klass + ":" + score).width;
 	    const textHeight = parseInt(font, 10); // base 10
 	    this.ctx.fillRect(x1, y1, textWidth + 4, textHeight + 4);
-
+	    
+	    
     }
     for (i = 0; i < valid_detections_data; ++i) {
 	    let [x1, y1, ,] = boxes_data.slice(i * 4, (i + 1) * 4);
@@ -99,6 +101,7 @@ class Image {
 	  [1, valid_detections_data, 4],
 	  'float32'
 	);
+	
 	pose.setOptions({
 	  selfieMode: true,
 	  upperBodyOnly: true,
@@ -107,15 +110,45 @@ class Image {
 	  minTrackingConfidence: 0.5
 	});
 	pose.onResults(onResultsPose);
+
+	function onResultsPose(results){
+		console.log("수행 완료" +results);
+		console.log(results);
+	}
 	
 	
-	pose.estimatePoses(img, {
-	  flipHorizontal: false
-	}).then((results) => {
-	  console.log(results);
-	}).catch((error) => {
-	  console.log(error);
-	});
+	async function startPose(box, realBox){
+
+		let [y1,x1,y2,x2] = box;
+		let [y3,x3,y4,x4] = realBox;
+		const height = y4 - y3;
+		const width = x4 - x3;
+		
+		console.log(height);
+		console.log(width);
+		
+		const imageTensor = tf.browser.fromPixels(image.img);
+		const expandedImage = tf.expandDims(imageTensor, 0);
+		
+		const croppedImage = tf.image.cropAndResize(expandedImage,[[y1,x1,y2,x2]], [0], [450 , 149]);
+	
+		const normalizedImage = tf.div(croppedImage, tf.max(imageTensor));
+		
+		const canvas = document.createElement('canvas');
+		canvas.width = image.img.width;
+		canvas.height = image.img.height;
+		
+		// croppedImages 텐서를 캔버스에 그리기
+		await tf.browser.toPixels(tf.squeeze(normalizedImage.arraySync()), canvas);
+		
+		// 이미지 요소 생성
+		const img1 = document.createElement('img');
+		img1.src = canvas.toDataURL('image/png');
+		document.body.appendChild(img1);
+		
+	}
+	
+	
 	
 //	pose.send({
 //		image : img,
@@ -124,12 +157,6 @@ class Image {
 //		
 //		console.log("수행");
 //	})
-	
-	
-	function onResultsPose(results){
-		console.log("수행 완료" +results);
-		console.log(results);
-	}
 	
 //	const predictions = await pose.executeAsync({
 //	  image: tf.browser.fromPixels(img),
@@ -181,7 +208,8 @@ async function renderResult() {
       alert(error);
     }
 
-  }
+  } 
+  
   
 //  poseResult(detect_res);
   image.drawCtx(); // 이미지를 그리는 부분
