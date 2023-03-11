@@ -79,7 +79,7 @@
 
 <!-- POSE NET -->
 
-	<div style=" margin-top: 300px; height:500px;">
+	<div style=" margin-top: 300px; height:300px;">
 	<video id="video" width="640" height="480" autoplay muted playsinline></video>
 	<canvas id="canvas"></canvas>
 	
@@ -87,6 +87,6 @@
 	
 
   <script type="text/javascript" src="./js/mediaPipe.js"></script>
-    <script src="/js/posenet.js"></script>
+    <script type="text/javascript"  src="./js/posenet.js"></script>
 </body>
 </html>
