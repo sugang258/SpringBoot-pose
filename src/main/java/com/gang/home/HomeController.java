@@ -74,4 +74,9 @@ public class HomeController {
 //		System.out.println(response.getBody());
 		return "/pose/kakaoPose";
 	}
+	
+	@GetMapping("posenet_mul")
+	public String posenet_mul() {
+		return "/pose/posenet_mul";
+	}
 }
