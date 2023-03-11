@@ -35,7 +35,7 @@ class Image {
   }
 
 
-  drawResult(res) {
+  async drawResult(res) {
 	console.log(res);
     const font = "16px sans-serif";
     this.ctx.font = font;
@@ -47,10 +47,12 @@ class Image {
     const classes_data = classes.dataSync();
     const valid_detections_data = valid_detections.dataSync()[0];
     
+    const bBox = [];
     tf.dispose(res);
     var i;
     for (i = 0; i < valid_detections_data; ++i) {
 	    let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
+	    bBox.push([x1, y1, x2, y2]);
 	    x1 *= this.canvas.width;
 	    x2 *= this.canvas.width;
 	    y1 *= this.canvas.height;
@@ -82,6 +84,62 @@ class Image {
 	    this.ctx.fillStyle = "#000000";
 	    this.ctx.fillText(klass + ":" + score, x1, y1);
     }
+    
+    
+    
+    
+    // MediaPipe 모델 로드
+	const pose = new Pose({locateFile: (file) => {
+	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+	}});
+	// 입력 이미지와 Tensor 객체를 이용하여 추론 실행
+	
+	const boundingBox = tf.tensor3d(
+	  [[...bBox]],
+	  [1, valid_detections_data, 4],
+	  'float32'
+	);
+	pose.setOptions({
+	  selfieMode: true,
+	  upperBodyOnly: true,
+	  smoothLandmarks: true,
+	  minDetectionConfidence: 0.5,
+	  minTrackingConfidence: 0.5
+	});
+	pose.onResults(onResultsPose);
+	
+	
+	pose.estimatePoses(img, {
+	  flipHorizontal: false
+	}).then((results) => {
+	  console.log(results);
+	}).catch((error) => {
+	  console.log(error);
+	});
+	
+//	pose.send({
+//		image : img,
+////		 detection: boundingBox
+//	}).then(() => {
+//		
+//		console.log("수행");
+//	})
+	
+	
+	function onResultsPose(results){
+		console.log("수행 완료" +results);
+		console.log(results);
+	}
+	
+//	const predictions = await pose.executeAsync({
+//	  image: tf.browser.fromPixels(img),
+//	  detection: boundingBox
+//	});
+	
+	// 추론 결과 출력
+    
+    
+    
 
   }
 }
@@ -125,7 +183,7 @@ async function renderResult() {
 
   }
   
-  poseResult(detect_res);
+//  poseResult(detect_res);
   image.drawCtx(); // 이미지를 그리는 부분
   image.drawResult(detect_res); // 이미지 Bbox 테두리를 그리는 부분
   tf.dispose(input);
@@ -152,73 +210,76 @@ app();
 
 /// pose
 
-function onResultsPose(results) {
-	console.log("포즈");
-  	console.log("결과"+ results);
-  	console.log("결과"+ results.poseLandmarks);
-  	drawConnectors(
-      image.ctx, results.poseLandmarks, POSE_CONNECTIONS, {
-        color: (data) => {
-          const x0 = image.canvas.width * data.from.x;
-          const y0 = image.canvas.height * data.from.y;
-          const x1 = image.canvas.width * data.to.x;
-          const y1 = image.canvas.height * data.to.y;
+//function onResultsPose(results) {
+//	console.log("포즈");
+//  	console.log("결과"+ results);
+//  	console.log("결과"+ results.poseLandmarks);
+//  	drawConnectors(
+//      image.ctx, results.poseLandmarks, POSE_CONNECTIONS, {
+//        color: (data) => {
+//          const x0 = image.canvas.width * data.from.x;
+//          const y0 = image.canvas.height * data.from.y;
+//          const x1 = image.canvas.width * data.to.x;
+//          const y1 = image.canvas.height * data.to.y;
+//
+//          const z0 = clamp(data.from.z + 0.5, 0, 1);
+//          const z1 = clamp(data.to.z + 0.5, 0, 1);
+//
+//          const gradient = image.ctx.createLinearGradient(x0, y0, x1, y1);
+//          gradient.addColorStop(
+//              0, `rgba(0, ${255 * z0}, ${255 * (1 - z0)}, 1)`);
+//          gradient.addColorStop(
+//              1.0, `rgba(0, ${255 * z1}, ${255 * (1 - z1)}, 1)`);
+//          return gradient;
+//        }
+//      });
+//      
+//  drawLandmarks(
+//      image.ctx,
+//      Object.values(POSE_LANDMARKS_LEFT)
+//          .map(index => results.poseLandmarks[index]),
+//      {color: '#FF0000', fillColor: '#FF0000'});
+//  drawLandmarks(
+//      image.ctx,
+//      Object.values(POSE_LANDMARKS_RIGHT)
+//          .map(index => results.poseLandmarks[index]),
+//      {color: '#FF0000', fillColor: '#00FF00'});
+//  drawLandmarks(
+//      image.ctx,
+//      Object.values(POSE_LANDMARKS_NEUTRAL)
+//          .map(index => results.poseLandmarks[index]),
+//      {color: '#FF0000', fillColor: '#AAAAAA'});
+//  image.ctx.restore();
+//}
 
-          const z0 = clamp(data.from.z + 0.5, 0, 1);
-          const z1 = clamp(data.to.z + 0.5, 0, 1);
-
-          const gradient = image.ctx.createLinearGradient(x0, y0, x1, y1);
-          gradient.addColorStop(
-              0, `rgba(0, ${255 * z0}, ${255 * (1 - z0)}, 1)`);
-          gradient.addColorStop(
-              1.0, `rgba(0, ${255 * z1}, ${255 * (1 - z1)}, 1)`);
-          return gradient;
-        }
-      });
-      
-  drawLandmarks(
-      image.ctx,
-      Object.values(POSE_LANDMARKS_LEFT)
-          .map(index => results.poseLandmarks[index]),
-      {color: zColor, fillColor: '#FF0000'});
-  drawLandmarks(
-      image.ctx,
-      Object.values(POSE_LANDMARKS_RIGHT)
-          .map(index => results.poseLandmarks[index]),
-      {color: zColor, fillColor: '#00FF00'});
-  drawLandmarks(
-      image.ctx,
-      Object.values(POSE_LANDMARKS_NEUTRAL)
-          .map(index => results.poseLandmarks[index]),
-      {color: zColor, fillColor: '#AAAAAA'});
-  image.ctx.restore();
-}
-
-function poseResult(detect_res) {
-	
-	const pose = new Pose({locateFile: (file) => {
-	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
-	}});
-	pose.onResults(onResultsPose);
+//function poseResult(detect_res) {
+//	console.log(" " + detect_res);
+//		
+//	const pose = new Pose({locateFile: (file) => {
+//	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+//	}});
+//	pose.onResults(onResultsPose);
+//	
+//	for(let i = 3 ; i < 4 ; i ++){
+//		console.log("hi");
+//		
+//		const inputTensorInfo = {
+//		    inputTensor: detect_res[i],
+//		    inputDataType: detect_res[i].dtype,
+//		    inputShapes: [detect_res[i].shape],
+//		    inputBufferDimensions: [...detect_res[i].shape],
+//		};
+//		
+//		pose.send({
+////			image : image.img,
+//			inputTensor : detect_res[i],
+//			inputTensorInfo : inputTensorInfo,
+//		});
+//		
+//	}
+//	
 	
 	
-	const inputTensorInfo = {
-    inputTensor: detect_res[0],
-    inputDataType: detect_res[0].dtype,
-    inputShapes: [detect_res[0].shape],
-    inputBufferDimensions: [detect_res[0].shape[0], detect_res[0].shape[1], detect_res[0].shape[2]],
-};
-	
-	pose.send({
-		image : image.img,
-		inputTensor : detect_res[0],
-		inputTensorInfo : inputTensorInfo,
-		}).then((results) => {
-			
-			console.log("//");
-			console.log("//"+results);
-			
-		})
 	
 	
 	 // input이 분석된 tensorflow 모델
@@ -229,6 +290,6 @@ function poseResult(detect_res) {
 //	 	const poseResult = await pose.send(input);
 		
 	//  console.log(poseResult);
-}
+//}
 
 		
