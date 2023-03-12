@@ -91,46 +91,22 @@ class Image {
     
     
     // MediaPipe 모델 로드
-	const pose = new Pose({locateFile: (file) => {
-	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-	}});
-	// 입력 이미지와 Tensor 객체를 이용하여 추론 실행
-	
-	const boundingBox = tf.tensor3d(
-	  [[...bBox]],
-	  [1, valid_detections_data, 4],
-	  'float32'
-	);
-	
-	pose.setOptions({
-	  selfieMode: true,
-	  upperBodyOnly: true,
-	  smoothLandmarks: true,
-	  minDetectionConfidence: 0.5,
-	  minTrackingConfidence: 0.5
-	});
-	pose.onResults(onResultsPose);
-
-	function onResultsPose(results){
-		console.log("수행 완료" +results);
-		console.log(results);
-	}
 	
 	
+		
+		
 	async function startPose(box, realBox){
 
 		let [y1,x1,y2,x2] = box;
 		let [y3,x3,y4,x4] = realBox;
-		const height = y4 - y3;
-		const width = x4 - x3;
-		
-		console.log(height);
-		console.log(width);
+		const imgHeight = Math.floor(y4 - y3);
+		const imgWidth = Math.floor(x4 - x3);
+		const cropSize = [imgHeight,imgWidth];
 		
 		const imageTensor = tf.browser.fromPixels(image.img);
 		const expandedImage = tf.expandDims(imageTensor, 0);
 		
-		const croppedImage = tf.image.cropAndResize(expandedImage,[[y1,x1,y2,x2]], [0], [450 , 149]);
+		const croppedImage = tf.image.cropAndResize(expandedImage,[[y1,x1,y2,x2]], [0], cropSize,'bilinear');
 	
 		const normalizedImage = tf.div(croppedImage, tf.max(imageTensor));
 		
@@ -146,28 +122,43 @@ class Image {
 		img1.src = canvas.toDataURL('image/png');
 		document.body.appendChild(img1);
 		
+		// 입력 이미지와 Tensor 객체를 이용하여 추론 실행
+	
+		// 여기서 send 수행중 에러 뜨는듯
+		
+		posing(img1);
 	}
 	
+	function posing(image) {
+		
+		
+		const pose = new Pose({locateFile: (file) => {
+		  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+		}});
 	
+		pose.setOptions({
+			    modelComplexity: 0,
+				  smoothLandmarks: true,
+				  enableSegmentation: false,
+				  smoothSegmentation: false,
+				  minDetectionConfidence: 0.5,
+				  minTrackingConfidence: 0.5
+			});
+		pose.onResults(onResultsPose);
+		function onResultsPose(results){
+				console.log("수행 완료" +results);
+				console.log(results);
+		}
+		
+		pose.initialize().then(() => {
+		  pose.send({
+		    image: image
+		  });
+		}).catch((error) => {
+		  console.error(error);
+		});
+	}
 	
-//	pose.send({
-//		image : img,
-////		 detection: boundingBox
-//	}).then(() => {
-//		
-//		console.log("수행");
-//	})
-	
-//	const predictions = await pose.executeAsync({
-//	  image: tf.browser.fromPixels(img),
-//	  detection: boundingBox
-//	});
-	
-	// 추론 결과 출력
-    
-    
-    
-
   }
 }
 

@@ -36,6 +36,11 @@ public class HomeController {
 		return "/pose/mediaPipe";
 	}
 	
+	@GetMapping("/mediaPipeImg")
+	public String mediaImg() {
+		return "/pose/mediaPipeImg";
+	}
+	
 	@GetMapping("/yolo")
 	public String yolo() {
 		return "/pose/yolo";

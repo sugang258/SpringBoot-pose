@@ -16,12 +16,18 @@
 	<div>
 		<a href="/mediaPipe"> MEDIA PIPE</a>
 	</div>
-	
+	<div>
+		<a href="/mediaPipeImg"> MEDIA PIPE IMG</a>
+	</div>
 	<div>
 		<a href="/kakaoPose"> KAKAO POSE</a>
 	</div>
-	
-	
+	<div>
+		<a href="/yolo"> YOLO</a>
+	</div>
+	<div>
+		<a href="/yoloimg"> YOLO IMGG</a>
+	</div>
 	<hr>
 	<div>
 		<a href="/allPose"> ALL POSE</a>
