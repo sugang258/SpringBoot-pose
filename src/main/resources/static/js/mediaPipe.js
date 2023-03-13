@@ -16,15 +16,23 @@ function zColor(data) {
 }
 
 function onResultsPose(results) {
+  //좌표 값 출력
+  console.log(results);
   document.body.classList.add('loaded');
   fpsControl.tick();
 
   canvasCtx5.save();
+
+  //x, y, width, height 설정
   canvasCtx5.clearRect(0, 0, out5.width, out5.height);
-  canvasCtx5.drawImage(
-      results.image, 0, 0, out5.width, out5.height);
+
+  //이미지 그리기 (image, dx, dy, dWidth, dHeight)
+  canvasCtx5.drawImage(results.image, 0, 0, out5.width, out5.height);
+
+  // points 간의 선 연결
   drawConnectors(
       canvasCtx5, results.poseLandmarks, POSE_CONNECTIONS, {
+        //x, y, z  좌표 값
         color: (data) => {
           const x0 = out5.width * data.from.x;
           const y0 = out5.height * data.from.y;
@@ -34,14 +42,17 @@ function onResultsPose(results) {
           const z0 = clamp(data.from.z + 0.5, 0, 1);
           const z1 = clamp(data.to.z + 0.5, 0, 1);
 
+          //기울기
           const gradient = canvasCtx5.createLinearGradient(x0, y0, x1, y1);
           gradient.addColorStop(
               0, `rgba(0, ${255 * z0}, ${255 * (1 - z0)}, 1)`);
           gradient.addColorStop(
               1.0, `rgba(0, ${255 * z1}, ${255 * (1 - z1)}, 1)`);
+
           return gradient;
         }
       });
+
   drawLandmarks(
       canvasCtx5,
       Object.values(POSE_LANDMARKS_LEFT)
@@ -63,8 +74,11 @@ function onResultsPose(results) {
 const pose = new Pose({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
 }});
+
+//pose 실행
 pose.onResults(onResultsPose);
 
+//카메라 setting
 const camera = new Camera(video5, {
   onFrame: async () => {
     await pose.send({image: video5});

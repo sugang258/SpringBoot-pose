@@ -36,6 +36,7 @@ public class HomeController {
 		return "/pose/mediaPipe";
 	}
 	
+
 	@GetMapping("/mediaPipeImg")
 	public String mediaImg() {
 		return "/pose/mediaPipeImg";
@@ -51,6 +52,12 @@ public class HomeController {
 		return "/pose/yoloimg";
 	}
 	
+=======
+	@GetMapping("/movenet")
+	public String blazepose() {
+		return "/posenet/movenet";
+	}
+
 	@GetMapping("/kakaoPose")
 	public ModelAndView kakaoPose() {
 		ModelAndView mv = new ModelAndView();
@@ -87,5 +94,10 @@ public class HomeController {
 		mv.setViewName("/pose/kakaoPose");
 		mv.addObject("pose", response.getBody());
 		return mv;
+	}
+	
+	@GetMapping("posenet_mul")
+	public String posenet_mul() {
+		return "/pose/posenet_mul";
 	}
 }
