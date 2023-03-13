@@ -14,11 +14,10 @@
 
 </head>
 <body>
-	<h1> 미디어 파이프 멀티 포즈를 테스트</h1>
+	<h1> 미디어 파이프 멀티 포즈를 테스트1</h1>
 	
-	<img class="image" src="/sample/test3.jpg">
-	<img class="image2" src="/sample/test1.jpg">
-	
+	<img id="grade" class="image" src="/sample/test3.jpg">
+	<img id="busan" class="image2" src="/sample/test1.jpg">
 	<script type="text/javascript" src="/js/mediaPipeImg.js"></script>
 
 </body>

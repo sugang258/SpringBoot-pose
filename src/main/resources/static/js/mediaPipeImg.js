@@ -1,101 +1,111 @@
-const image5 = document.getElementsByClassName('image')[0];
-const image2 =  document.getElementsByClassName('image2')[0];
-//const out5 = document.getElementsByClassName('canvas')[0];
+let image5 = document.getElementById("grade")
+let image2 =  document.getElementById("busan")
 
+const leftIndices = [1, 2, 3, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31];
+const rightIndices = [4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+const leftConnections = [
+  [11,13],[13,15],[15,21],[15,17],[15,19],[17,19],
+  [11,23],[23,25],[25,27],[27,29],[27,31],[29,31]
+];
+const rightConnections = [
+  [12,14],[14,16],[16,22],[16,18],[16,20],[18,20],
+  [12,24],[24,26],[26,28],[28,30],[28,32],[30,32]
+];
+const centerConnections = [
+  [11,12],[23,24]
+];
 
-const fpsControl = new FPS();
+var canvas = [];
+var canvasCtx = [];
 
-function zColor(data) {
-  const z = clamp(data.from.z + 0.5, 0, 1);
-  return `rgba(0, ${255 * z}, ${255 * (1 - z)}, 1)`;
-}
+function onResultsPose(results,index) {
 
-function onResultsPose(results) {
-//  document.body.classList.add('loaded');
-//  fpsControl.tick();
-	console.log("results = " + results);
-
-	let out5 = document.createElement('canvas');
-	out5.width = image5.width;
-	out5.height = image5.height;
-	let canvasCtx5 = out5.getContext('2d');
+	console.log(index);
+	if (canvas[index] === undefined) {
+		canvas[index] = document.createElement('canvas');
+		canvasCtx[index] = canvas[index].getContext('2d');
+		canvas[index].width = results.image.width;
+		canvas[index].height = results.image.height;
+	}
 	
-	out5.width = image5.width;
-	out5.height = image5.height;
-
-  canvasCtx5.save();
-  canvasCtx5.clearRect(0, 0, out5.width, out5.height);
-  canvasCtx5.drawImage(
-      results.image, 0, 0, out5.width, out5.height);
-  drawConnectors(
-      canvasCtx5, results.poseLandmarks, POSE_CONNECTIONS, {
-        color: (data) => {
-          const x0 = out5.width * data.from.x;
-          const y0 = out5.height * data.from.y;
-          const x1 = out5.width * data.to.x;
-          const y1 = out5.height * data.to.y;
-
-          const z0 = clamp(data.from.z + 0.5, 0, 1);
-          const z1 = clamp(data.to.z + 0.5, 0, 1);
-
-          const gradient = canvasCtx5.createLinearGradient(x0, y0, x1, y1);
-          gradient.addColorStop(
-              0, `rgba(0, ${255 * z0}, ${255 * (1 - z0)}, 1)`);
-          gradient.addColorStop(
-              1.0, `rgba(0, ${255 * z1}, ${255 * (1 - z1)}, 1)`);
-          return gradient;
-        }
-      });
-  drawLandmarks(
-      canvasCtx5,
-      Object.values(POSE_LANDMARKS_LEFT)
-          .map(index => results.poseLandmarks[index]),
-      {color: zColor, fillColor: '#FF0000'});
-  drawLandmarks(
-      canvasCtx5,
-      Object.values(POSE_LANDMARKS_RIGHT)
-          .map(index => results.poseLandmarks[index]),
-      {color: zColor, fillColor: '#00FF00'});
-  drawLandmarks(
-      canvasCtx5,
-      Object.values(POSE_LANDMARKS_NEUTRAL)
-          .map(index => results.poseLandmarks[index]),
-      {color: zColor, fillColor: '#AAAAAA'});
-  canvasCtx5.restore();
+	const keyPoint = results.poseLandmarks;
+	var leftKeyPoint = [];
+	var rightKeyPoint = [];
+	
+	for (let i = 0; i < keyPoint.length; i++) {
+		if (leftIndices.includes(i)) {
+			leftKeyPoint.push(keyPoint[i]);
+		} else {
+			rightKeyPoint.push(keyPoint[i]);
+		}
+	}
+	
+	
+	
+  canvasCtx[index].save();
+  canvasCtx[index].clearRect(0, 0, canvas[index].width, canvas[index].height);
+  canvasCtx[index].drawImage(
+      results.image, 0, 0, canvas[index].width, canvas[index].height);
   
-
-	
-	document.body.appendChild(out5);
-	
-	// 입력 이미지와 Tensor 객체를 이용하여 추론 실행
-	
-	// 여기서 send 수행중 에러 뜨는듯
-	
-  
-  
-  
+ 		drawLandmarks(canvasCtx[index], leftKeyPoint, {
+			color: '#FF0000', lineWidth: 2
+		});
+		drawLandmarks(canvasCtx[index], rightKeyPoint, {
+			color: '#0000FF', lineWidth: 2
+		});
+		drawConnectors(canvasCtx[index], keyPoint, leftConnections,
+			{
+				color: '#00FFFF', lineWidth: 3
+			});
+		drawConnectors(canvasCtx[index], keyPoint, rightConnections,
+			{
+				color: '#00FF00', lineWidth: 3
+			});
+		drawConnectors(canvasCtx[index], keyPoint, centerConnections,
+		{
+			color: '#EEEEEE', lineWidth: 3
+		});
+ 	canvasCtx[index].restore();
+	document.body.appendChild(canvas[index]);
 }
 
 const pose = new Pose({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
 }});
-pose.onResults(onResultsPose);
+
+var index = 0;
+
+pose.onResults((results) => {
+	onResultsPose(results,index);
+	index++;
+});
+
+const pose1 = new Pose({locateFile: (file) => {
+  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+}});
+
+
+pose1.onResults((results) => {
+	onResultsPose(results,index);
+	index++;
+});
+
+
 
 poseSend();
 
 async function poseSend(){
- 	const result1 =await pose.send({
-		image : image5
+	await pose.send({
+	    image: image5,
+  	});
+		
+	await pose1.send({
+			image : image2,
 	});
-	
-	pose.initialize().then(async() => {
-		  await pose.send({
-		    image: image2
-		  });
-		}).catch((error) => {
-		  console.error(error);
-		});
-	
+  	
+	await pose1.send({
+			image : image5,
+	});
 }
 
 
