@@ -289,7 +289,6 @@ function newPose(index){
 	
 	
 	poseSend();
-	
 	async function poseSend(){
 		await pose.send({
 		    image: images[0],
@@ -299,6 +298,9 @@ function newPose(index){
 				image : images[1],
 		});
 	}
+	
 }
+
+
 
 		
