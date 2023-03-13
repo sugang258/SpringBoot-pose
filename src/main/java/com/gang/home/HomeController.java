@@ -36,10 +36,28 @@ public class HomeController {
 		return "/pose/mediaPipe";
 	}
 	
+
+	@GetMapping("/mediaPipeImg")
+	public String mediaImg() {
+		return "/pose/mediaPipeImg";
+	}
+	
+	@GetMapping("/yolo")
+	public String yolo() {
+		return "/pose/yolo";
+	}
+	
+	@GetMapping("/yoloimg")
+	public String yoloimg() {
+		return "/pose/yoloimg";
+	}
+	
+=======
 	@GetMapping("/movenet")
 	public String blazepose() {
 		return "/posenet/movenet";
 	}
+
 	@GetMapping("/kakaoPose")
 	public ModelAndView kakaoPose() {
 		ModelAndView mv = new ModelAndView();
