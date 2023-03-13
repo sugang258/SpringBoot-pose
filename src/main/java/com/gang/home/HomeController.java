@@ -52,7 +52,6 @@ public class HomeController {
 		return "/pose/yoloimg";
 	}
 	
-=======
 	@GetMapping("/movenet")
 	public String blazepose() {
 		return "/posenet/movenet";
