@@ -69,43 +69,67 @@ function onResultsPose(results,index) {
 	document.body.appendChild(canvas[index]);
 }
 
-const pose = new Pose({locateFile: (file) => {
-  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
-}});
 
 var index = 0;
+let image = [image5, image2, image5];
+const poses = [];
 
-pose.onResults((results) => {
-	onResultsPose(results,index);
-	index++;
-});
+const posee = {};
 
-const pose1 = new Pose({locateFile: (file) => {
-  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
-}});
+posed();
 
-
-pose1.onResults((results) => {
-	onResultsPose(results,index);
-	index++;
-});
+function posing(index){
+	
+	
+}
 
 
-
-poseSend();
-
-async function poseSend(){
-	await pose.send({
-	    image: image5,
-  	});
-		
-	await pose1.send({
-			image : image2,
+function posed(){
+	
+	const pose = new Pose({locateFile: (file) => {
+	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+	}});
+	
+	
+	
+	pose.onResults((results) => {
+		onResultsPose(results,index);
+		index++;
 	});
-  	
-	await pose1.send({
-			image : image5,
+	
+	poses.push(pose);
+	
+	const pose1 = new Pose({locateFile: (file) => {
+	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+	}});
+	
+	
+	pose1.onResults((results) => {
+		onResultsPose(results,index);
+		index++;
 	});
+	
+	poses.push(pose1);
+	
+	let image = [image5, image2];
+	
+	
+	
+	poseSend();
+	
+
+	async function poseSend(){
+		await poses[0].send({
+		    image: image[0],
+	  	});
+			
+		await poses[1].send({
+				image : image[1],
+		});
+	  
+	}
+
+	
 }
 
 

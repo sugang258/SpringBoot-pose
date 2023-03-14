@@ -42,6 +42,11 @@ public class HomeController {
 		return "/pose/mediaPipeImg";
 	}
 	
+	@GetMapping("/mediaPipeVideo")
+	public String mediaVideo() {
+		return "/pose/mediaPipeVideo";
+	}
+	
 	@GetMapping("/yolo")
 	public String yolo() {
 		return "/pose/yolo";
@@ -52,7 +57,6 @@ public class HomeController {
 		return "/pose/yoloimg";
 	}
 	
-=======
 	@GetMapping("/movenet")
 	public String blazepose() {
 		return "/posenet/movenet";

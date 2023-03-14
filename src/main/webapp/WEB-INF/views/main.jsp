@@ -20,6 +20,13 @@
 		<a href="/mediaPipeImg"> MEDIA PIPE IMG</a>
 	</div>
 	<div>
+		<a href="/mediaPipeVideo"> MEDIA PIPE VIDEO</a>
+	</div>
+	
+	
+	
+	<hr>
+	<div>
 		<a href="/kakaoPose"> KAKAO POSE</a>
 	</div>
 	<div>

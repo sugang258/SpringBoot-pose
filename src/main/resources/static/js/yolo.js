@@ -51,16 +51,20 @@ class Image {
     var i;
     for (i = 0; i < valid_detections_data; ++i) {
 	    let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
-	    startPose([y1, x1, y2, x2] ,[y1*this.canvas.height, x1*this.canvas.width, y2*this.canvas.height, x2*this.canvas.width]);
 	    
-	    bBox.push([x1, y1, x2, y2]);
+	    const klass = coco_names[classes_data[i]];
+	    if(klass == 'person'){
+	    	startPose(i,[y1, x1, y2, x2] ,[y1*this.canvas.height, x1*this.canvas.width, y2*this.canvas.height, x2*this.canvas.width]);
+	    }
+	    
+		bBox.push([x1, y1, x2, y2]);
 	    x1 *= this.canvas.width;
 	    x2 *= this.canvas.width;
 	    y1 *= this.canvas.height;
 	    y2 *= this.canvas.height;
 	    const width = x2 - x1;
 	    const height = y2 - y1;
-	    const klass = coco_names[classes_data[i]];
+	   
 	    const score = scores_data[i].toFixed(2);
 	
 	    // Draw the bounding box.
@@ -88,14 +92,7 @@ class Image {
     }
     
     
-    
-    
-    // MediaPipe 모델 로드
-	
-	
-		
-		
-	async function startPose(box, realBox){
+	async function startPose(index , box, realBox){
 
 		let [y1,x1,y2,x2] = box;
 		let [y3,x3,y4,x4] = realBox;
@@ -118,64 +115,48 @@ class Image {
 		await tf.browser.toPixels(tf.squeeze(normalizedImage.arraySync()), canvas);
 		
 		// 이미지 요소 생성
-		const img1 = document.createElement('img');
+		let img1 = document.createElement('img');
 		img1.src = canvas.toDataURL('image/png');
 		document.body.appendChild(img1);
 		
-		// 입력 이미지와 Tensor 객체를 이용하여 추론 실행
-	
-		// 여기서 send 수행중 에러 뜨는듯
-		
+		images.push(img1);
+		console.log("push");
 		posing(img1);
 	}
 	
-	function posing(image) {
-		
-		
-		const pose = new Pose({locateFile: (file) => {
-		  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
-		}});
 	
-		pose.setOptions({
-			    modelComplexity: 0,
-				  smoothLandmarks: true,
-				  enableSegmentation: false,
-				  smoothSegmentation: false,
-				  minDetectionConfidence: 0.5,
-				  minTrackingConfidence: 0.5
-			});
-		pose.onResults(onResultsPose);
-		function onResultsPose(results){
-				console.log("수행 완료" +results);
-				console.log(results);
-		}
-		
-		pose.initialize().then(() => {
-		  pose.send({
-		    image: image
-		  });
-		}).catch((error) => {
-		  console.error(error);
-		});
-	}
+	
+	
 	
   }
 }
-
-
-
+var canvas = [];
+var canvasCtx = [];
+let images = [];
 let detector, image, stats;
 let startInferenceTime, numInferences = 0;
 let inferenceTimeSum = 0, lastPanelUpdate = 0;
 let rafId;
+
+const leftIndices = [1, 2, 3, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31];
+const rightIndices = [4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+const leftConnections = [
+  [11,13],[13,15],[15,21],[15,17],[15,19],[17,19],
+  [11,23],[23,25],[25,27],[27,29],[27,31],[29,31]
+];
+const rightConnections = [
+  [12,14],[14,16],[16,22],[16,18],[16,20],[18,20],
+  [12,24],[24,26],[26,28],[28,30],[28,32],[30,32]
+];
+const centerConnections = [
+  [11,12],[23,24]
+];
 
 const yolov5n_weight = "https://raw.githubusercontent.com/da22so/tfjs_models/main/yolov5n_web_model/model.json"
 
 async function createDetector() {
 	return tf.loadGraphModel(yolov5n_weight);
 }
-
-
 
 async function renderResult() {
 
@@ -202,14 +183,11 @@ async function renderResult() {
   } 
   
   
-//  poseResult(detect_res);
   image.drawCtx(); // 이미지를 그리는 부분
   image.drawResult(detect_res); // 이미지 Bbox 테두리를 그리는 부분
   tf.dispose(input);
 
 
-// 	const personDetection = input.slice([0, 0, 0], [input.shape[0], input.shape[1], 4]);
-// 	console.log(personDetection);
 }
 
 async function renderPrediction() {
@@ -227,88 +205,102 @@ async function app() {
 app();
 
 
-/// pose
+async function posing(img){
+	
+	if(images.length == 2){
+		newPose();
+	}
+}
+function onResultsPose(results,index){
+	
+	console.log(index);
+	if (canvas[index] === undefined) {
+		canvas[index] = document.createElement('canvas');
+		canvasCtx[index] = canvas[index].getContext('2d');
+		canvas[index].width = results.image.width;
+		canvas[index].height = results.image.height;
+	}
+	
+	const keyPoint = results.poseLandmarks;
+	var leftKeyPoint = [];
+	var rightKeyPoint = [];
+	
+	for (let i = 0; i < keyPoint.length; i++) {
+		if (leftIndices.includes(i)) {
+			leftKeyPoint.push(keyPoint[i]);
+		} else {
+			rightKeyPoint.push(keyPoint[i]);
+		}
+	}
+	
+	
+	
+  canvasCtx[index].save();
+  canvasCtx[index].clearRect(0, 0, canvas[index].width, canvas[index].height);
+  canvasCtx[index].drawImage(
+      results.image, 0, 0, canvas[index].width, canvas[index].height);
+  
+ 		drawLandmarks(canvasCtx[index], leftKeyPoint, {
+			color: '#FF0000', lineWidth: 2
+		});
+		drawLandmarks(canvasCtx[index], rightKeyPoint, {
+			color: '#0000FF', lineWidth: 2
+		});
+		drawConnectors(canvasCtx[index], keyPoint, leftConnections,
+			{
+				color: '#00FFFF', lineWidth: 3
+			});
+		drawConnectors(canvasCtx[index], keyPoint, rightConnections,
+			{
+				color: '#00FF00', lineWidth: 3
+			});
+		drawConnectors(canvasCtx[index], keyPoint, centerConnections,
+		{
+			color: '#EEEEEE', lineWidth: 3
+		});
+ 	canvasCtx[index].restore();
+	document.body.appendChild(canvas[index]);
+	
+}
 
-//function onResultsPose(results) {
-//	console.log("포즈");
-//  	console.log("결과"+ results);
-//  	console.log("결과"+ results.poseLandmarks);
-//  	drawConnectors(
-//      image.ctx, results.poseLandmarks, POSE_CONNECTIONS, {
-//        color: (data) => {
-//          const x0 = image.canvas.width * data.from.x;
-//          const y0 = image.canvas.height * data.from.y;
-//          const x1 = image.canvas.width * data.to.x;
-//          const y1 = image.canvas.height * data.to.y;
-//
-//          const z0 = clamp(data.from.z + 0.5, 0, 1);
-//          const z1 = clamp(data.to.z + 0.5, 0, 1);
-//
-//          const gradient = image.ctx.createLinearGradient(x0, y0, x1, y1);
-//          gradient.addColorStop(
-//              0, `rgba(0, ${255 * z0}, ${255 * (1 - z0)}, 1)`);
-//          gradient.addColorStop(
-//              1.0, `rgba(0, ${255 * z1}, ${255 * (1 - z1)}, 1)`);
-//          return gradient;
-//        }
-//      });
-//      
-//  drawLandmarks(
-//      image.ctx,
-//      Object.values(POSE_LANDMARKS_LEFT)
-//          .map(index => results.poseLandmarks[index]),
-//      {color: '#FF0000', fillColor: '#FF0000'});
-//  drawLandmarks(
-//      image.ctx,
-//      Object.values(POSE_LANDMARKS_RIGHT)
-//          .map(index => results.poseLandmarks[index]),
-//      {color: '#FF0000', fillColor: '#00FF00'});
-//  drawLandmarks(
-//      image.ctx,
-//      Object.values(POSE_LANDMARKS_NEUTRAL)
-//          .map(index => results.poseLandmarks[index]),
-//      {color: '#FF0000', fillColor: '#AAAAAA'});
-//  image.ctx.restore();
-//}
+function newPose(index){
 
-//function poseResult(detect_res) {
-//	console.log(" " + detect_res);
-//		
-//	const pose = new Pose({locateFile: (file) => {
-//	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
-//	}});
-//	pose.onResults(onResultsPose);
-//	
-//	for(let i = 3 ; i < 4 ; i ++){
-//		console.log("hi");
-//		
-//		const inputTensorInfo = {
-//		    inputTensor: detect_res[i],
-//		    inputDataType: detect_res[i].dtype,
-//		    inputShapes: [detect_res[i].shape],
-//		    inputBufferDimensions: [...detect_res[i].shape],
-//		};
-//		
-//		pose.send({
-////			image : image.img,
-//			inputTensor : detect_res[i],
-//			inputTensorInfo : inputTensorInfo,
-//		});
-//		
-//	}
-//	
+	const pose = new Pose({locateFile: (file) => {
+	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+	}});
+	
+	var index = 0;
+	
+	pose.onResults((results) => {
+		onResultsPose(results,index);
+		index++;
+	});
+	
+	const pose1 = new Pose({locateFile: (file) => {
+	  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/${file}`;
+	}});
+	
+	
+	pose1.onResults((results) => {
+		onResultsPose(results,index);
+		index++;
+	});
 	
 	
 	
+	poseSend();
+	async function poseSend(){
+		await pose.send({
+		    image: images[0],
+	  	});
+				
+		await pose1.send({
+				image : images[1],
+		});
+	}
 	
-	 // input이 분석된 tensorflow 모델
-	  // 이걸로 pose 기능을 수행하면 ?
-			  
-//	 	const personDetection = input.slice([0, 0, 0], [input.shape[0], input.shape[1], 4]);
-//	 	console.log(personDetection);
-//	 	const poseResult = await pose.send(input);
-		
-	//  console.log(poseResult);
-//}
+}
+
+
 
 		

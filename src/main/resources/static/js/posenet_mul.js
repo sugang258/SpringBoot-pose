@@ -15,6 +15,7 @@ function detectPoseInRealTime(video, net) {
   
     async function poseDetectionFrame() {
       // 비디오 프레임을 Posenet 모델에 입력
+//      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const pose = await net.estimateSinglePose(video, {
         flipHorizontal: flipHorizontal
       });

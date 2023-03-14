@@ -5,26 +5,33 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-
-<!-- Load TensorFlow.js. This is required to use coco-ssd model. -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-<!-- Load the coco-ssd model. -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
-
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.1/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.2/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/pose.js" crossorigin="anonymous"></script>
-  </head>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<!-- Load the coco-ssd model. -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
+  
+
+</head>
 <body>
+	<h1> 미디어 파이프 멀티 포즈를 테스트1</h1>
+	
+<!-- 	<img id="grade" class="image" src="/sample/test3.jpg"> -->
+<!-- 	<img id="busan" class="image2" src="/sample/test1.jpg"> -->
+	<video id="gradevideo" src="/video/test1.mp4" controls="controls"></video>
+	
+	
+	
+	<canvas id="output0"></canvas>
+	<canvas id="output1"></canvas>
+	<canvas id="output2"></canvas>
+	
+	<canvas id="output"></canvas>
+	<script type="text/javascript" src="/js/mediaPipeVideo.js"></script>
 
-<h1>YOLO</h1>
-<img id="img" class="img1" src="/sample/test5.jpg"/>
-<canvas id="output"></canvas>
-
-
-
-<script src="./js/yolo.js"></script>
 </body>
 </html>
