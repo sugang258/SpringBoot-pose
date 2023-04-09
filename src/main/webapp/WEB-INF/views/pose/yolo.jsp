@@ -15,10 +15,9 @@
 </head>
 <body>
 
-<h1>YOLO</h1>
-<img id="img" src="/sample/cave.jpg"/>
-<video id= "video"  src=""></video>
-<canvas id="output"></canvas>
+<!-- <img id="img" src="/sample/cave.jpg"/> -->
+<video id= "video"  src="./video/flytothesky4.mp4" controls="controls"></video>
+<canvas id="output" style="position: absolute; top: 0 ; left: 0"></canvas>
 
 <script>
  
@@ -62,21 +61,23 @@ class Camera {
       }
     };
 
-    const stream = await navigator.mediaDevices.getUserMedia(videoConfig);
+//     const stream = await navigator.mediaDevices.getUserMedia(videoConfig);
 
-    const camera = new Camera();
-    camera.video.srcObject = stream;
+    const camera = new Camera();;
+    	
+//     	new Camera();
+//     camera.video.srcObject = stream;
 
-    await new Promise((resolve) => {
-      camera.video.onloadedmetadata = () => {
-        resolve(video);
-      };
-    });
+//     await new Promise((resolve) => {
+//       camera.video.onloadedmetadata = () => {
+//         resolve(video);
+//       };
+//     });
 
-    camera.video.play();
+//     camera.video.play();
 
-    const videoWidth = camera.video.videoWidth;
-    const videoHeight = camera.video.videoHeight;
+    const videoWidth = 640;
+    const videoHeight = 360;
     // Must set below two lines, otherwise video element doesn't show.
     camera.video.width = videoWidth;
     camera.video.height = videoHeight;
@@ -92,13 +93,13 @@ class Camera {
     return camera;
   }
 
-  drawCtx() {
-    this.ctx.drawImage(
-      this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
-  }
+//   drawCtx() {
+//     this.ctx.drawImage(
+//       this.video, 0, 0, 640, 360);
+//   }
 
   clearCtx() {
-    this.ctx.clearRect(0, 0, this.video.videoWidth, this.video.videoHeight);
+    this.ctx.clearRect(0, 0, 640, 360);
   }
 
 
@@ -204,7 +205,8 @@ async function renderResult() {
     }
 
   }
-  camera.drawCtx();
+//   camera.drawCtx();
+	camera.clearCtx();
   camera.drawResult(detect_res);
   tf.dispose(input);
 
